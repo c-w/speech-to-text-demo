@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:latest
+    command:
+      - azurite-blob
+      - --blobHost=0.0.0.0
+
+  minio:
+    image: cwolff/minio:latest
+    environment:
+      MINIO_ACCESS_KEY: ${AWS_ACCESS_KEY_ID}
+      MINIO_SECRET_KEY: ${AWS_SECRET_ACCESS_KEY}
+    command:
+      - gateway
+      - azure
+      - http://azurite:10000
+    ports:
+      - 9000:9000
