@@ -10,7 +10,10 @@
   "license": "ISC",
   "dependencies": {
     "got": "^9.6.0",
-    "mkdirp": "^0.5.1"
+    "hasbin": "^1.2.3",
+    "mkdirp": "^0.5.1",
+    "node-cmd": "^3.0.0",
+    "sprintf-js": "^1.1.2"
   },
   "devDependencies": {
     "standard": "^14.3.1"
