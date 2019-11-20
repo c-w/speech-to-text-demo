@@ -50,7 +50,7 @@ class Main {
   }
 
   async requestTranscription ({ audioURL }) {
-    let response;
+    let response
 
     try {
       response = await got.post(`${this.speechServiceEndpoint}/api/speechtotext/v2.0/transcriptions`, {
@@ -76,7 +76,7 @@ class Main {
     } catch (err) {
       if (err.response) {
         const error = JSON.parse(err.response.body)
-        err = new Error(`[HTTP ${err.response.statusCode}] ${error.code}: ${error.message}`)
+        throw new Error(`[HTTP ${err.response.statusCode}] ${error.code}: ${error.message}`)
       }
       throw err
     }
