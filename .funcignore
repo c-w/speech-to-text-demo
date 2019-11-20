@@ -1,4 +1,6 @@
 .git*
 /.vscode/
+/.env
 /local.settings.json
+/*.template
 /data/

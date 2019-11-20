@@ -1,0 +1,11 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "<storage connection string>",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "SPEECH_SERVICE_KEY": "<cris access key>",
+    "SPEECH_SERVICE_ENDPOINT": "https://<cris region>.cris.ai",
+    "TRANSCRIPTION_CONTAINER": "transcription",
+    "AUDIO_STORAGE": "<storage connection string>"
+  }
+}
