@@ -5,10 +5,17 @@ const EVENTGRID_BLOB_CREATED = 'Microsoft.Storage.BlobCreated'
 const BLOB_SAS_EXIRY_HOURS = 48
 const BLOB_SAS_LOOKBACK_MINUTES = 5
 
+function credentialFromConnectionString (storageConnectionString) {
+  const parts = storageConnectionString.split(';').map(kv => kv.split('='))
+  const accountName = parts.filter(([key, _]) => key === 'AccountName')[0][1]
+  const accountKey = parts.filter(([key, _]) => key === 'AccountKey')[0][1]
+  return new azureStorage.StorageSharedKeyCredential(accountName, accountKey)
+}
+
 class Main {
-  constructor ({ log, storageAccountName, storageAccountKey, speechServiceKey, speechServiceEndpoint }) {
+  constructor ({ log, storageConnectionString, speechServiceKey, speechServiceEndpoint }) {
     this.log = log
-    this.storageCredential = new azureStorage.StorageSharedKeyCredential(storageAccountName, storageAccountKey)
+    this.storageCredential = credentialFromConnectionString(storageConnectionString)
     this.speechServiceKey = speechServiceKey
     this.speechServiceEndpoint = speechServiceEndpoint
   }
@@ -21,9 +28,10 @@ class Main {
 
     const blobURL = event.data.url
     const blobSASURL = this.createBlobSASURL({ blobURL })
-    const transcriptionURL = await this.requestTranscription({ audioURL: blobSASURL })
+    const transcription = await this.requestTranscription({ audioURL: blobSASURL })
 
-    this.log(`Transcription for ${blobURL} is running at ${transcriptionURL}.`)
+    this.log(`Transcription for ${blobURL} is running at ${transcription.url}.`)
+    return transcription
   }
 
   createBlobSASURL ({ blobURL }) {
@@ -81,7 +89,10 @@ class Main {
       throw err
     }
 
-    return response.headers.location
+    return {
+      url: response.headers.location,
+      sleep: Number(response.headers['retry-after'])
+    }
   }
 }
 

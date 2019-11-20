@@ -4,6 +4,13 @@
       "type": "eventGridTrigger",
       "direction": "in",
       "name": "eventGridEvent"
+    },
+    {
+      "type": "queue",
+      "direction": "out",
+      "name": "outputQueueItem",
+      "queueName": "transcriptioninprogress",
+      "connection": "AUDIO_STORAGE"
     }
   ]
 }

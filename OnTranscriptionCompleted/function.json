@@ -1,16 +1,11 @@
 {
   "bindings": [
     {
-      "type": "httpTrigger",
+      "type": "queueTrigger",
       "direction": "in",
-      "name": "req",
-      "authLevel": "anonymous",
-      "methods": ["post"]
-    },
-    {
-      "type": "http",
-      "direction": "out",
-      "name": "res"
+      "name": "queueItem",
+      "queueName": "transcriptioninprogress",
+      "connection": "AUDIO_STORAGE"
     }
   ]
 }

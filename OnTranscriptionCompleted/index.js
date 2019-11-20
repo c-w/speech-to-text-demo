@@ -1,11 +1,15 @@
 const Main = require('./main')
 const process = require('process')
 
-module.exports = async function (context, req) {
+module.exports = async function (context) {
   const main = new Main({
-    webhookSecret: process.env.WEBHOOK_SECRET,
+    storageConnectionString: process.env.AUDIO_STORAGE,
+    transcriptionContainer: process.env.TRANSCRIPTION_CONTAINER,
+    speechServiceKey: process.env.SPEECH_SERVICE_KEY,
     log: context.log
   })
 
-  await main.run({ headers: req.headers, body: req.body })
+  const input = context.bindings.queueItem
+
+  await main.run(input)
 }
