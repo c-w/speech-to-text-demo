@@ -5,7 +5,6 @@ const dotenv = require('dotenv')
 const fs = require('fs')
 const path = require('path')
 const process = require('process')
-const uuidv4 = require('uuid/v4')
 
 dotenv.config()
 
@@ -29,7 +28,7 @@ const ensureEnv = key => {
 const awsAccessKeyId = ensureEnv('AWS_ACCESS_KEY_ID')
 const awsSecretAccessKey = ensureEnv('AWS_SECRET_ACCESS_KEY')
 const awsEndpoint = ensureEnv('AWS_ENDPOINT')
-const awsBucket = uuidv4().replace(/[^a-zA-Z0-9]/, '')
+const awsBucket = ensureEnv('AWS_BUCKET')
 
 const s3 = new aws.S3({
   accessKeyId: awsAccessKeyId,
@@ -47,9 +46,20 @@ const uploadToS3 = async filePath => {
   }).promise()
 }
 
+const createBucketIfNotExists = async () => {
+  try {
+    await s3.createBucket({ Bucket: awsBucket }).promise()
+    console.log(`Created S3 bucket ${awsBucket}.`)
+  } catch (err) {
+    if (err.code !== 'BucketAlreadyOwnedByYou') {
+      throw err
+    }
+    console.log(`S3 bucket ${awsBucket} already exists.`)
+  }
+}
+
 const main = async () => {
-  await s3.createBucket({ Bucket: awsBucket }).promise()
-  console.log(`Created S3 bucket ${awsBucket}.`)
+  await createBucketIfNotExists()
 
   for (const fileName of fs.readdirSync(inDir)) {
     const filePath = path.join(inDir, fileName)

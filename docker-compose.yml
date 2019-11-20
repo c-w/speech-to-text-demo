@@ -16,6 +16,6 @@ services:
     command:
       - gateway
       - azure
-      - http://azurite:10000
+      - ${AZURE_STORAGE_ENDPOINT}
     ports:
       - 9000:9000
