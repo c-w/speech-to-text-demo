@@ -1,15 +1,14 @@
 {
-  "name": "speech-to-text-demo",
+  "name": "speech-to-text-demo-scripts",
   "version": "1.0.0",
   "private": true,
-  "description": "",
+  "description": "Scripts for the speech-to-text-demo",
   "scripts": {
     "lint": "standard \"**/*.js\""
   },
   "author": "Clemens Wolff <clewolff@microsoft.com>",
   "license": "ISC",
   "dependencies": {
-    "@azure/storage-blob": "^12.0.0",
     "aws-sdk": "^2.575.0",
     "dotenv": "^8.2.0",
     "got": "^9.6.0",
@@ -17,7 +16,9 @@
     "mkdirp": "^0.5.1",
     "node-cmd": "^3.0.0",
     "semver": "^6.3.0",
-    "sprintf-js": "^1.1.2"
+    "sprintf-js": "^1.1.2",
+    "temp": "^0.9.1",
+    "zip-local": "^0.3.4"
   },
   "devDependencies": {
     "standard": "^14.3.1"

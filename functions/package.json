@@ -1,0 +1,12 @@
+{
+  "name": "speech-to-text-demo-functions",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Azure Functions for the speech-to-text-demo",
+  "author": "Clemens Wolff <clewolff@microsoft.com>",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/storage-blob": "^12.0.0",
+    "got": "^9.6.0"
+  }
+}
