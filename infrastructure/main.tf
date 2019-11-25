@@ -1,8 +1,3 @@
-provider "azurerm" {
-  version         = "=1.36.1"
-  subscription_id = var.subscription_id
-}
-
 resource "azurerm_resource_group" "minio_resource_group" {
   name     = "${var.prefix}minio"
   location = var.location

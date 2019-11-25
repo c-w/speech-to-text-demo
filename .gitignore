@@ -1,10 +1,14 @@
-node_modules/
+.vscode/
+.git/
+**/node_modules/
+
+# Application artifacts
 data/
 .env
 
 # Terraform artifacts
-.terraform/
-*.tfstate*
+**/.terraform/
+**/*.tfstate*
 
 # Azure Functions artifacts
 bin

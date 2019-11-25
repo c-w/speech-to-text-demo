@@ -5,25 +5,5 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '10.16.3'
-  displayName: 'Javascript: setup'
-
-- script: npm install && (cd functions && npm install)
-  displayName: 'Javascript: dependencies'
-
-- script: npm run lint
-  displayName: 'Javascript: lint'
-
-- script: npm run typecheck
-  displayName: 'Javascript: typecheck'
-
-- script: terraform init infrastructure
-  displayName: 'Terraform: setup'
-
-- script: terraform fmt -check infrastructure
-  displayName: 'Terraform: check formatting'
-
-- script: terraform validate infrastructure
-  displayName: 'Terraform: lint'
+- script: docker build .
+  displayName: 'Run CI'
