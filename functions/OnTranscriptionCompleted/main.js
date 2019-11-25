@@ -1,15 +1,27 @@
 const azureStorage = require('@azure/storage-blob')
 const got = require('got')
+const moment = require('moment')
+const sleepFor = require('sleep-promise')
+
+/**
+ * @typedef {import('../types').EventGridEvent} EventGridEvent
+ * @typedef {import('../types').Logger} Logger
+ * @typedef {import('../types').PendingTranscription} PendingTranscription
+ * @typedef {import('../types').Transcription} Transcription
+ * @typedef {import('@azure/storage-blob').StorageSharedKeyCredential} StorageSharedKeyCredential
+ */
 
 const POLLING_INTERVAL_SECONDS = 5
 
-function sleepForSeconds (seconds) {
-  return new Promise((resolve, reject) => {
-    setTimeout(resolve, seconds * 1000)
-  })
-}
-
 class Main {
+  /**
+   * @constructor
+   * @param {object} args
+   * @param {Logger} args.log
+   * @param {string} args.storageConnectionString
+   * @param {string} args.transcriptionContainer
+   * @param {string} args.speechServiceKey
+   */
   constructor ({ log, storageConnectionString, transcriptionContainer, speechServiceKey }) {
     this.log = log
     this.blobServiceClient = azureStorage.BlobServiceClient.fromConnectionString(storageConnectionString)
@@ -17,13 +29,20 @@ class Main {
     this.speechServiceKey = speechServiceKey
   }
 
-  async run ({ url, sleep }) {
+  /**
+   * @param {PendingTranscription} pendingTranscription
+   */
+  async run (pendingTranscription) {
     // TODO: replace polling with webhook when https://github.com/MicrosoftDocs/azure-docs/issues/35553 is fixed
-    const transcription = await this.waitForTranscription({ url, sleep })
+    const finishedTranscription = await this.waitForTranscription(pendingTranscription)
 
-    await this.copyTranscriptionToStorage(transcription)
+    await this.copyTranscriptionToStorage(finishedTranscription)
   }
 
+  /**
+   * @param {PendingTranscription} args
+   * @returns {Promise<Transcription>}
+   */
   async waitForTranscription ({ url, sleep }) {
     let transcription = null
 
@@ -31,7 +50,7 @@ class Main {
       sleep = sleep > 0 ? sleep : POLLING_INTERVAL_SECONDS
 
       this.log(`Waiting for ${sleep} seconds for transcription at ${url}.`)
-      await sleepForSeconds(sleep)
+      await sleepFor(sleep * 1000)
 
       const response = await got.get(url, {
         headers: {
@@ -46,20 +65,24 @@ class Main {
       }
 
       sleep = Number(response.headers['x-ratelimit-remaining']) === 0
-        ? (new Date(response.headers['x-ratelimit-reset']) - new Date()) / 1000
+        ? moment(response.headers['x-ratelimit-reset']).unix() - moment().unix()
         : Number(response.headers['retry-after'])
     }
 
     return transcription
   }
 
+  /**
+   * @param {Transcription} transcription
+   */
   async copyTranscriptionToStorage (transcription) {
     const container = await this.createContainerIfNotExists()
 
-    await Promise.all(Object.entries(transcription.resultsUrls).map(([resultType, url]) => {
+    await Promise.all(Object.entries(transcription.resultsUrls).map(async ([resultType, url]) => {
       const blob = container.getBlobClient(`${transcription.name}.${resultType}.json`)
       this.log(`Copying transcription to ${blob.url}.`)
-      return blob.startCopyFromURL(url)
+      const blobCopy = await blob.beginCopyFromURL(url)
+      return blobCopy.pollUntilDone()
     }))
   }
 

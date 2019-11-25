@@ -10,11 +10,14 @@ steps:
     versionSpec: '10.16.3'
   displayName: 'Javascript: setup'
 
-- script: npm install
+- script: npm install && (cd functions && npm install)
   displayName: 'Javascript: dependencies'
 
 - script: npm run lint
   displayName: 'Javascript: lint'
+
+- script: npm run typecheck
+  displayName: 'Javascript: typecheck'
 
 - script: terraform init infrastructure
   displayName: 'Terraform: setup'

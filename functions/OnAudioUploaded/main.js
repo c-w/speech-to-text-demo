@@ -1,10 +1,21 @@
 const azureStorage = require('@azure/storage-blob')
 const got = require('got')
 
+/**
+ * @typedef {import('../types').EventGridEvent} EventGridEvent
+ * @typedef {import('../types').Logger} Logger
+ * @typedef {import('../types').PendingTranscription} PendingTranscription
+ * @typedef {import('@azure/storage-blob').StorageSharedKeyCredential} StorageSharedKeyCredential
+ */
+
 const EVENTGRID_BLOB_CREATED = 'Microsoft.Storage.BlobCreated'
 const BLOB_SAS_EXIRY_HOURS = 48
 const BLOB_SAS_LOOKBACK_MINUTES = 5
 
+/**
+ * @param {string} storageConnectionString
+ * @returns {StorageSharedKeyCredential}
+ */
 function credentialFromConnectionString (storageConnectionString) {
   const parts = storageConnectionString.split(';').map(kv => kv.split('='))
   const accountName = parts.filter(([key, _]) => key === 'AccountName')[0][1]
@@ -13,6 +24,14 @@ function credentialFromConnectionString (storageConnectionString) {
 }
 
 class Main {
+  /**
+   * @constructor
+   * @param {object} args
+   * @param {Logger} args.log
+   * @param {string} args.storageConnectionString
+   * @param {string} args.speechServiceKey
+   * @param {string} args.speechServiceEndpoint
+   */
   constructor ({ log, storageConnectionString, speechServiceKey, speechServiceEndpoint }) {
     this.log = log
     this.storageCredential = credentialFromConnectionString(storageConnectionString)
@@ -20,6 +39,11 @@ class Main {
     this.speechServiceEndpoint = speechServiceEndpoint
   }
 
+  /**
+   * @param {object} args
+   * @param {EventGridEvent} args.event
+   * @returns {Promise<PendingTranscription | undefined>}
+   */
   async run ({ event }) {
     if (event.eventType !== EVENTGRID_BLOB_CREATED) {
       this.log(`Skipping event of type ${event.eventType}.`)
@@ -34,6 +58,11 @@ class Main {
     return transcription
   }
 
+  /**
+   * @param {object} args
+   * @param {string} args.blobURL
+   * @returns {string}
+   */
   createBlobSASURL ({ blobURL }) {
     const blob = new azureStorage.BlobClient(blobURL)
 
@@ -57,6 +86,11 @@ class Main {
     return `${blobURL}?${blobSAS}`
   }
 
+  /**
+   * @param {object} args
+   * @param {string} args.audioURL
+   * @returns {Promise<PendingTranscription>}
+   */
   async requestTranscription ({ audioURL }) {
     let response
 
@@ -89,8 +123,13 @@ class Main {
       throw err
     }
 
+    const transcriptionURL = response.headers.location
+    if (!transcriptionURL) {
+      throw new Error('No location header present in transcription response')
+    }
+
     return {
-      url: response.headers.location,
+      url: transcriptionURL,
       sleep: Number(response.headers['retry-after'])
     }
   }

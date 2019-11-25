@@ -4,6 +4,7 @@
   "private": true,
   "description": "Scripts for the speech-to-text-demo",
   "scripts": {
+    "typecheck": "tsc -p functions",
     "lint": "standard \"**/*.js\""
   },
   "author": "Clemens Wolff <clewolff@microsoft.com>",
@@ -21,6 +22,10 @@
     "zip-local": "^0.3.4"
   },
   "devDependencies": {
-    "standard": "^14.3.1"
+    "@azure/functions": "^1.0.3",
+    "@types/got": "^9.6.9",
+    "@types/node": "^12.12.12",
+    "standard": "^14.3.1",
+    "typescript": "^3.7.2"
   }
 }
