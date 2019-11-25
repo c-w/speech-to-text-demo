@@ -1,0 +1,26 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '10.16.3'
+  displayName: 'Javascript: setup'
+
+- script: npm install
+  displayName: 'Javascript: dependencies'
+
+- script: npm run lint
+  displayName: 'Javascript: lint'
+
+- script: terraform init infrastructure
+  displayName: 'Terraform: setup'
+
+- script: terraform fmt -check infrastructure
+  displayName: 'Terraform: check formatting'
+
+- script: terraform validate infrastructure
+  displayName: 'Terraform: lint'

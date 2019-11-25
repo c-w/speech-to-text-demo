@@ -52,7 +52,7 @@ async function ensureDependenciesAreMet () {
   try {
     await get(`az account show -s "${subscriptionId}"`)
   } catch (err) {
-    console.error(`Must run 'az login' before calling this script.`)
+    console.error("Must run 'az login' before calling this script.")
     process.exit(1)
   }
 
@@ -84,10 +84,10 @@ async function deployTerraform ({ codeZip, subscriptionId, prefix }) {
   const terraformDirectory = path.join(__dirname, '..', 'infrastructure')
 
   console.log(`Applying terraform resources from ${terraformDirectory}.`)
-  return await withDir(terraformDirectory, async () => {
+  return withDir(terraformDirectory, async () => {
     await get(`terraform apply -auto-approve -var "prefix=${prefix}" -var "subscription_id=${subscriptionId}" -var "code_zip=${codeZip}"`)
 
-    const terraformOutputStdout = await get(`terraform output -json -no-color`)
+    const terraformOutputStdout = await get('terraform output -json -no-color')
     return JSON.parse(terraformOutputStdout)
   })
 }
