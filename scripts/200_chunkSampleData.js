@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const cmd = require('node-cmd')
+const childProcess = require('child_process')
 const fs = require('fs')
 const hasbin = require('hasbin')
 const mkdirp = require('mkdirp')
@@ -8,7 +8,7 @@ const path = require('path')
 const promisify = require('util').promisify
 const sprintf = require('sprintf-js').sprintf
 
-const run = promisify(cmd.run)
+const exec = promisify(childProcess.exec)
 
 if (!hasbin.sync('ffmpeg')) {
   console.error('The ffmpeg utility is required for this script.')
@@ -35,7 +35,7 @@ const chunkAudio = async filePath => {
     console.log(`Skipping ${filePath} since it has already been chunked.`)
   } else {
     console.log(`Splitting ${filePath} into chunks of ${chunkMinutes} minutes.`)
-    await run(`ffmpeg -i '${filePath}' -c copy -map 0 -segment_time ${chunkMinutes * 60} -f segment ${chunkPattern}`)
+    await exec(`ffmpeg -i '${filePath}' -c copy -map 0 -segment_time ${chunkMinutes * 60} -f segment ${chunkPattern}`)
   }
 }
 

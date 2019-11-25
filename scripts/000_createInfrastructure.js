@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const cmd = require('node-cmd')
+const childProcess = require('child_process')
 const fs = require('fs')
 const hasbin = require('hasbin')
 const path = require('path')
@@ -9,7 +9,7 @@ const semver = require('semver')
 const temp = require('temp')
 const zipper = require('zip-local')
 
-const get = promisify(cmd.get)
+const exec = promisify(childProcess.exec)
 const readFile = promisify(fs.readFile)
 const writeFile = promisify(fs.writeFile)
 
@@ -30,8 +30,8 @@ async function ensureDependenciesAreMet () {
     process.exit(1)
   }
 
-  const azVersionStdout = await get('az --version')
-  const azVersion = azVersionStdout.match(/azure-cli\s+(?<version>[0-9.]+)/m).groups.version
+  const azVersionProcess = await exec('az --version')
+  const azVersion = azVersionProcess.stdout.match(/azure-cli\s+(?<version>[0-9.]+)/m).groups.version
   if (semver.lt(azVersion, azMinVersion)) {
     console.error(`The version of the az utility must be ${azMinVersion} or higher.`)
     process.exit(1)
@@ -42,15 +42,15 @@ async function ensureDependenciesAreMet () {
     process.exit(1)
   }
 
-  const terraformVersionStdout = await get('terraform --version')
-  const terraformVersion = terraformVersionStdout.match(/Terraform v(?<version>[0-9.]+)/).groups.version
+  const terraformVersionProcess = await exec('terraform --version')
+  const terraformVersion = terraformVersionProcess.stdout.match(/Terraform v(?<version>[0-9.]+)/).groups.version
   if (semver.lt(terraformVersion, terraformMinVersion)) {
     console.error(`The version of the terraform utility must be ${terraformMinVersion} or higher.`)
     process.exit(1)
   }
 
   try {
-    await get(`az account show -s "${subscriptionId}"`)
+    await exec(`az account show -s "${subscriptionId}"`)
   } catch (err) {
     console.error("Must run 'az login' before calling this script.")
     process.exit(1)
@@ -72,7 +72,7 @@ async function packageCode () {
   const codeDirectory = path.join(__dirname, '..', 'functions')
 
   console.log(`Installing dependencies for ${codeDirectory}.`)
-  await withDir(codeDirectory, () => get('npm install --only=prod'))
+  await withDir(codeDirectory, () => exec('npm install --only=prod'))
 
   console.log(`Packaging code to ${codeZipPath}.`)
   zipper.sync.zip(codeDirectory).compress().save(codeZipPath)
@@ -85,10 +85,10 @@ async function deployTerraform ({ codeZip, subscriptionId, prefix }) {
 
   console.log(`Applying terraform resources from ${terraformDirectory}.`)
   return withDir(terraformDirectory, async () => {
-    await get(`terraform apply -auto-approve -var "prefix=${prefix}" -var "subscription_id=${subscriptionId}" -var "code_zip=${codeZip}"`)
+    await exec(`terraform apply -auto-approve -var "prefix=${prefix}" -var "subscription_id=${subscriptionId}" -var "code_zip=${codeZip}"`)
 
-    const terraformOutputStdout = await get('terraform output -json -no-color')
-    return JSON.parse(terraformOutputStdout)
+    const terraformOutputProcess = await exec('terraform output -json -no-color')
+    return JSON.parse(terraformOutputProcess.stdout)
   })
 }
 
