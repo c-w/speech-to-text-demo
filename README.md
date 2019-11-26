@@ -10,7 +10,8 @@ This repository is a demo project that implements a workflow using [Azure Speech
 
 ## Setup
 
-1. Install the dependencies via `npm install`.
-2. Execute `node scripts/000_createInfrastructure.js` to deploy the solution to Azure.
-3. Execute `node scripts/100_downloadSampleData.js` followed by `node scripts/200_chunkSampleData.js` to create some test data.
-4. Execute `node scripts/300_uploadSampleDataToS3.js` to trigger the audio transcription workflow.
+1. Start the development environment container via `docker build -t devenv .` followed by `docker run -v $(pwd):/app -it devenv`.
+2. Connect to your Azure account via `az login --use-device-code`.
+3. Execute `node scripts/000_createInfrastructure.js` to deploy the solution to Azure.
+4. Execute `node scripts/100_downloadSampleData.js` followed by `node scripts/200_chunkSampleData.js` to create some test data.
+5. Execute `node scripts/300_uploadSampleDataToS3.js` to trigger the audio transcription workflow.
