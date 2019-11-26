@@ -13,7 +13,7 @@ This repository is a demo project that implements a workflow using [Azure Speech
 ```bash
 # start the development environment container
 > docker build -t devenv .
-> docker run -v $(pwd):/app -it devenv
+> docker run -it devenv
 
 # connect to azure
 $ az login --use-device-code
