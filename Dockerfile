@@ -18,14 +18,15 @@ WORKDIR /app/functions
 COPY functions/package*.json ./
 RUN npm install
 
+WORKDIR /app/infrastructure
+COPY infrastructure/providers.tf ./
+RUN terraform init
+
+COPY infrastructure/* ./
+RUN terraform fmt -check
+RUN terraform validate
+
 WORKDIR /app
-COPY infrastructure/providers.tf ./infrastructure/providers.tf
-RUN terraform init ./infrastructure
-
-COPY ./infrastructure ./infrastructure
-RUN terraform fmt -check ./infrastructure
-RUN terraform validate ./infrastructure
-
 COPY . ./
 RUN npm run lint
 RUN npm run typecheck
