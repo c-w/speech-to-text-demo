@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.575.0",
-    "dotenv": "^8.2.0",
+    "envalid": "^6.0.0",
     "got": "^9.6.0",
     "hasbin": "^1.2.3",
     "mkdirp": "^0.5.1",
