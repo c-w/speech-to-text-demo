@@ -9,7 +9,7 @@
       "type": "queue",
       "direction": "out",
       "name": "outputQueueItem",
-      "queueName": "transcriptioninprogress",
+      "queueName": "transcribeaudioinprogress",
       "connection": "AUDIO_STORAGE"
     }
   ]

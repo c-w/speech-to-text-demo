@@ -4,7 +4,7 @@
       "type": "queueTrigger",
       "direction": "in",
       "name": "queueItem",
-      "queueName": "transcriptioninprogress",
+      "queueName": "transcribeaudioinprogress",
       "connection": "AUDIO_STORAGE"
     }
   ]
