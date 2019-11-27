@@ -1,4 +1,4 @@
-const azureStorage = require('@azure/storage-blob')
+const MongoClient = require('mongodb').MongoClient
 const got = require('got')
 const moment = require('moment')
 const sleepFor = require('sleep-promise')
@@ -18,14 +18,16 @@ class Main {
    * @constructor
    * @param {object} args
    * @param {Logger} args.log
-   * @param {string} args.storageConnectionString
-   * @param {string} args.transcriptionContainer
+   * @param {string} args.mongodbConnectionString
+   * @param {string} args.mongodbDatabase
+   * @param {string} args.transcriptionCollection
    * @param {string} args.speechServiceKey
    */
-  constructor ({ log, storageConnectionString, transcriptionContainer, speechServiceKey }) {
+  constructor ({ log, mongodbConnectionString, mongodbDatabase, transcriptionCollection, speechServiceKey }) {
     this.log = log
-    this.blobServiceClient = azureStorage.BlobServiceClient.fromConnectionString(storageConnectionString)
-    this.transcriptionContainer = transcriptionContainer
+    this.mongoClient = new MongoClient(mongodbConnectionString, { useUnifiedTopology: true })
+    this.mongodbDatabase = mongodbDatabase
+    this.transcriptionCollection = transcriptionCollection
     this.speechServiceClient = got.extend({
       headers: { 'Ocp-Apim-Subscription-Key': speechServiceKey }
     })
@@ -38,7 +40,7 @@ class Main {
     // TODO: replace polling with webhook when https://github.com/MicrosoftDocs/azure-docs/issues/35553 is fixed
     const finishedTranscription = await this.waitForTranscription(pendingTranscription)
 
-    await this.copyTranscriptionToStorage(finishedTranscription)
+    await this.storeTranscriptionInMongoDB(finishedTranscription)
   }
 
   /**
@@ -73,29 +75,28 @@ class Main {
   /**
    * @param {Transcription} transcription
    */
-  async copyTranscriptionToStorage (transcription) {
-    const container = await this.createContainerIfNotExists()
+  async storeTranscriptionInMongoDB (transcription) {
+    const client = await this.mongoClient.connect()
+    const db = client.db(this.mongodbDatabase)
+    const collection = db.collection(this.transcriptionCollection)
 
-    await Promise.all(Object.entries(transcription.resultsUrls).map(async ([resultType, url]) => {
-      const blob = container.getBlobClient(`${transcription.name}.${resultType}.json`)
-      this.log(`Copying transcription to ${blob.url}.`)
-      const blobCopy = await blob.beginCopyFromURL(url)
-      return blobCopy.pollUntilDone()
-    }))
-  }
+    const createdDate = moment(transcription.createdDateTime).format('YYYY-MM-DD')
+    const recordingsUrl = transcription.recordingsUrl.split('?')[0]
 
-  async createContainerIfNotExists () {
-    const containerClient = this.blobServiceClient.getContainerClient(this.transcriptionContainer)
+    for (const [resultType, url] of Object.entries(transcription.resultsUrls)) {
+      const transcriptionResponse = await this.speechServiceClient.get(url)
+      console.log(`Fetched transcription ${resultType} for ${recordingsUrl}.`)
 
-    try {
-      await containerClient.create()
-    } catch (err) {
-      if (err.details.errorCode !== 'ContainerAlreadyExists') {
-        throw err
-      }
+      await collection.insertOne({
+        createdDate,
+        recordingsUrl,
+        resultType,
+        ...JSON.parse(transcriptionResponse.body)
+      })
+      console.log(`Stored transcription ${resultType} for ${recordingsUrl} in collection ${this.transcriptionCollection}.`)
     }
 
-    return containerClient
+    await client.close()
   }
 }
 

@@ -20,6 +20,21 @@ variable "tag_name" {
   default = "sttdeployment"
 }
 
+variable "mongodb_database" {
+  type    = string
+  default = "speechtotextdemo"
+}
+
+variable "transcription_collection_name" {
+  type    = string
+  default = "transcription"
+}
+
+variable "transcription_collection_throughput" {
+  type    = number
+  default = 400
+}
+
 variable "storage_account_tier" {
   type    = string
   default = "Standard"
@@ -33,11 +48,6 @@ variable "storage_account_replication" {
 variable "audio_container_name" {
   type    = string
   default = "audio"
-}
-
-variable "transcription_container_name" {
-  type    = string
-  default = "transcription"
 }
 
 variable "code_container_name" {

@@ -10,6 +10,39 @@ resource "azurerm_resource_group" "svc_resource_group" {
   tags     = { "${var.tag_name}" = var.prefix }
 }
 
+resource "azurerm_cosmosdb_account" "metadata_mongodb" {
+  resource_group_name = azurerm_resource_group.svc_resource_group.name
+  location            = azurerm_resource_group.svc_resource_group.location
+  name                = "${var.prefix}db"
+  offer_type          = "Standard"
+  kind                = "MongoDB"
+
+  consistency_policy {
+    consistency_level = "Strong"
+  }
+
+  geo_location {
+    location          = azurerm_resource_group.svc_resource_group.location
+    failover_priority = 0
+  }
+}
+
+resource "azurerm_cosmosdb_mongo_database" "metadata_db" {
+  resource_group_name = azurerm_cosmosdb_account.metadata_mongodb.resource_group_name
+  account_name        = azurerm_cosmosdb_account.metadata_mongodb.name
+  name                = var.mongodb_database
+}
+
+resource "azurerm_cosmosdb_mongo_collection" "transcription_collection" {
+  resource_group_name = azurerm_cosmosdb_account.metadata_mongodb.resource_group_name
+  account_name        = azurerm_cosmosdb_account.metadata_mongodb.name
+  database_name       = azurerm_cosmosdb_mongo_database.metadata_db.name
+  name                = var.transcription_collection_name
+  default_ttl_seconds = -1
+  shard_key           = "createdDate"
+  throughput          = var.transcription_collection_throughput
+}
+
 resource "azurerm_storage_account" "data_storage_account" {
   resource_group_name      = azurerm_resource_group.svc_resource_group.name
   location                 = azurerm_resource_group.svc_resource_group.location
@@ -22,11 +55,6 @@ resource "azurerm_storage_account" "data_storage_account" {
 resource "azurerm_storage_container" "audio_container" {
   storage_account_name = azurerm_storage_account.data_storage_account.name
   name                 = var.audio_container_name
-}
-
-resource "azurerm_storage_container" "transcription_container" {
-  storage_account_name = azurerm_storage_account.data_storage_account.name
-  name                 = var.transcription_container_name
 }
 
 resource "azurerm_storage_container" "code_container" {
@@ -154,10 +182,12 @@ resource "azurerm_function_app" "svc_app" {
     HASH                           = filesha256(var.code_zip)
     WEBSITE_USE_ZIP                = "${azurerm_storage_blob.code_blob.url}${data.azurerm_storage_account_sas.code_blob_sas.sas}"
 
-    TRANSCRIPTION_CONTAINER = azurerm_storage_container.transcription_container.name
-    SPEECH_SERVICE_KEY      = azurerm_cognitive_account.speech_to_text.primary_access_key
-    SPEECH_SERVICE_ENDPOINT = "https://${azurerm_cognitive_account.speech_to_text.location}.cris.ai"
-    AUDIO_STORAGE           = azurerm_storage_account.data_storage_account.primary_connection_string
+    MONGODB_CONNECTION_STRING = azurerm_cosmosdb_account.metadata_mongodb.connection_strings[0]
+    MONGODB_DATABASE          = azurerm_cosmosdb_mongo_database.metadata_db.name
+    TRANSCRIPTION_COLLECTION  = azurerm_cosmosdb_mongo_collection.transcription_collection.name
+    SPEECH_SERVICE_KEY        = azurerm_cognitive_account.speech_to_text.primary_access_key
+    SPEECH_SERVICE_ENDPOINT   = "https://${azurerm_cognitive_account.speech_to_text.location}.cris.ai"
+    AUDIO_STORAGE             = azurerm_storage_account.data_storage_account.primary_connection_string
   }
 }
 

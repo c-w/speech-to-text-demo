@@ -10,6 +10,7 @@
     "envalid": "^6.0.0",
     "got": "^9.6.0",
     "moment": "^2.24.0",
+    "mongodb": "^3.3.5",
     "sleep-promise": "^8.0.1"
   }
 }

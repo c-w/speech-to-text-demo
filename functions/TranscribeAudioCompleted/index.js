@@ -11,14 +11,16 @@ const process = require('process')
  */
 module.exports = async function (context) {
   const env = envalid.cleanEnv(process.env, {
-    AUDIO_STORAGE: envalid.str(),
-    TRANSCRIPTION_CONTAINER: envalid.str(),
+    MONGODB_CONNECTION_STRING: envalid.str(),
+    MONGODB_DATABASE: envalid.str(),
+    TRANSCRIPTION_COLLECTION: envalid.str(),
     SPEECH_SERVICE_KEY: envalid.str()
   })
 
   const main = new Main({
-    storageConnectionString: env.AUDIO_STORAGE,
-    transcriptionContainer: env.TRANSCRIPTION_CONTAINER,
+    mongodbConnectionString: env.MONGODB_CONNECTION_STRING,
+    mongodbDatabase: env.MONGODB_DATABASE,
+    transcriptionCollection: env.TRANSCRIPTION_COLLECTION,
     speechServiceKey: env.SPEECH_SERVICE_KEY,
     log: context.log
   })

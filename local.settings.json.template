@@ -2,9 +2,11 @@
   "IsEncrypted": false,
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "node",
+    "MONGODB_CONNECTION_STRING": "${mongodbConnectionString}",
+    "MONGODB_DATABASE": "${mongodbDatabase}",
+    "TRANSCRIPTION_COLLECTION": "${transcriptionCollection}",
     "SPEECH_SERVICE_KEY": "${crisAccessKey}",
     "SPEECH_SERVICE_ENDPOINT": "${crisEndpoint}",
-    "TRANSCRIPTION_CONTAINER": "${transcriptionContainerName}",
     "AUDIO_STORAGE": "${storageConnectionString}"
   }
 }

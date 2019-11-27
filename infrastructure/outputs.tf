@@ -1,3 +1,15 @@
+output "mongodbConnectionString" {
+  value = azurerm_cosmosdb_account.metadata_mongodb.connection_strings[0]
+}
+
+output "mongodbDatabase" {
+  value = azurerm_cosmosdb_mongo_database.metadata_db.name
+}
+
+output "transcriptionCollection" {
+  value = azurerm_cosmosdb_mongo_collection.transcription_collection.name
+}
+
 output "storageAccountName" {
   value = azurerm_storage_account.data_storage_account.name
 }
@@ -20,10 +32,6 @@ output "crisAccessKey" {
 
 output "crisEndpoint" {
   value = "https://${var.location}.cris.ai"
-}
-
-output "transcriptionContainerName" {
-  value = var.transcription_container_name
 }
 
 output "storageConnectionString" {

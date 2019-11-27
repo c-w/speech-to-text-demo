@@ -19,6 +19,8 @@ export interface PendingTranscription {
 }
 
 export interface Transcription {
+  createdDateTime: string;
+  recordingsUrl: string;
   resultsUrls: { [key: string]: string };
   name: string;
 }
