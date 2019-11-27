@@ -6,7 +6,7 @@ const hasbin = require('hasbin')
 const path = require('path')
 const promisify = require('util').promisify
 const semver = require('semver')
-const temp = require('temp')
+const temp = require('temp').track()
 const zipper = require('zip-local')
 
 const exec = promisify(childProcess.exec)
