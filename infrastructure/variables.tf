@@ -35,6 +35,16 @@ variable "transcription_collection_throughput" {
   default = 400
 }
 
+variable "models_collection_name" {
+  type    = string
+  default = "models"
+}
+
+variable "models_collection_throughput" {
+  type    = number
+  default = 400
+}
+
 variable "storage_account_tier" {
   type    = string
   default = "Standard"

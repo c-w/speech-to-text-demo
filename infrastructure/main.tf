@@ -43,6 +43,16 @@ resource "azurerm_cosmosdb_mongo_collection" "transcription_collection" {
   throughput          = var.transcription_collection_throughput
 }
 
+resource "azurerm_cosmosdb_mongo_collection" "models_collection" {
+  resource_group_name = azurerm_cosmosdb_account.metadata_mongodb.resource_group_name
+  account_name        = azurerm_cosmosdb_account.metadata_mongodb.name
+  database_name       = azurerm_cosmosdb_mongo_database.metadata_db.name
+  name                = var.models_collection_name
+  default_ttl_seconds = -1
+  shard_key           = "identificationProfileId"
+  throughput          = var.models_collection_throughput
+}
+
 resource "azurerm_storage_account" "data_storage_account" {
   resource_group_name      = azurerm_resource_group.svc_resource_group.name
   location                 = azurerm_resource_group.svc_resource_group.location
@@ -98,6 +108,17 @@ data "azurerm_storage_account_sas" "code_blob_sas" {
     create  = false
     update  = false
     process = false
+  }
+}
+
+resource "azurerm_cognitive_account" "speaker_recognition" {
+  resource_group_name = azurerm_resource_group.svc_resource_group.name
+  location            = "West US"
+  name                = "${var.prefix}spid"
+  kind                = "SpeakerRecognition"
+  sku {
+    name = var.cognitive_services_sku_name
+    tier = var.cognitive_services_sku_tier
   }
 }
 

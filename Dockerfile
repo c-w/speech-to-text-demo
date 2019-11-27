@@ -7,7 +7,7 @@ RUN curl -fsSLo terraform.zip https://releases.hashicorp.com/terraform/0.12.16/t
  && rm terraform.zip
 
 RUN apt-get update \
- && apt-get install -y ffmpeg \
+ && apt-get install -y ffmpeg sox \
  && curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
 WORKDIR /app

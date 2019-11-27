@@ -10,6 +10,10 @@ output "transcriptionCollection" {
   value = azurerm_cosmosdb_mongo_collection.transcription_collection.name
 }
 
+output "modelsCollection" {
+  value = azurerm_cosmosdb_mongo_collection.models_collection.name
+}
+
 output "storageAccountName" {
   value = azurerm_storage_account.data_storage_account.name
 }
@@ -24,6 +28,14 @@ output "minioEndpoint" {
 
 output "audioContainerName" {
   value = var.audio_container_name
+}
+
+output "speakerRecognitionAccessKey" {
+  value = azurerm_cognitive_account.speaker_recognition.primary_access_key
+}
+
+output "speakerRecognitionEndpoint" {
+  value = azurerm_cognitive_account.speaker_recognition.endpoint
 }
 
 output "crisAccessKey" {

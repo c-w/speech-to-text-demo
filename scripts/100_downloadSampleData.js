@@ -12,8 +12,9 @@ const pipeline = promisify(stream.pipeline)
 const urls = [
   'http://www.archive.org/download/moby_dick_librivox/mobydick_001_002_melville.mp3',
   'http://www.archive.org/download/moby_dick_librivox/mobydick_003_melville.mp3',
-  'http://www.archive.org/download/moby_dick_librivox/mobydick_004_007_melville.mp3',
-  'http://www.archive.org/download/moby_dick_librivox/mobydick_008_009_melville.mp3'
+  'http://www.archive.org/download/war_and_peace_vol1_dole_mas_librivox/warandpeace1_01_tolstoy.mp3',
+  'http://www.archive.org/download/war_and_peace_vol1_dole_mas_librivox/warandpeace1_02_tolstoy.mp3',
+  'http://www.archive.org/download/emma_solo_librivox/emma_01_01_austen.mp3'
 ]
 
 const outDir = path.join(__dirname, '..', 'data', 'audio')
