@@ -35,8 +35,10 @@ class Main {
   constructor ({ log, storageConnectionString, speechServiceKey, speechServiceEndpoint }) {
     this.log = log
     this.storageCredential = credentialFromConnectionString(storageConnectionString)
-    this.speechServiceKey = speechServiceKey
-    this.speechServiceEndpoint = speechServiceEndpoint
+    this.speechServiceClient = got.extend({
+      baseUrl: `${speechServiceEndpoint}/api/speechtotext/v2.0`,
+      headers: { 'Ocp-Apim-Subscription-Key': speechServiceKey }
+    })
   }
 
   /**
@@ -95,7 +97,7 @@ class Main {
     let response
 
     try {
-      response = await got.post(`${this.speechServiceEndpoint}/api/speechtotext/v2.0/transcriptions`, {
+      response = await this.speechServiceClient.post('/transcriptions', {
         body: JSON.stringify({
           name: new URL(audioURL).pathname.substr(1),
           description: null,
@@ -110,10 +112,7 @@ class Main {
             PunctuationMode: 'Automatic'
           }
         }),
-        headers: {
-          'Content-Type': 'application/json',
-          'Ocp-Apim-Subscription-Key': this.speechServiceKey
-        }
+        headers: { 'Content-Type': 'application/json' }
       })
     } catch (err) {
       if (err.response) {

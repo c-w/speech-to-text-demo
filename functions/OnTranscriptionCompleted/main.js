@@ -26,7 +26,9 @@ class Main {
     this.log = log
     this.blobServiceClient = azureStorage.BlobServiceClient.fromConnectionString(storageConnectionString)
     this.transcriptionContainer = transcriptionContainer
-    this.speechServiceKey = speechServiceKey
+    this.speechServiceClient = got.extend({
+      headers: { 'Ocp-Apim-Subscription-Key': speechServiceKey }
+    })
   }
 
   /**
@@ -52,11 +54,7 @@ class Main {
       this.log(`Waiting for ${sleep} seconds for transcription at ${url}.`)
       await sleepFor(sleep * 1000)
 
-      const response = await got.get(url, {
-        headers: {
-          'Ocp-Apim-Subscription-Key': this.speechServiceKey
-        }
-      })
+      const response = await this.speechServiceClient.get(url)
 
       transcription = JSON.parse(response.body)
 
