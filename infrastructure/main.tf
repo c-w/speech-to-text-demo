@@ -171,7 +171,7 @@ resource "azurerm_eventgrid_event_subscription" "svc_sub" {
   }
 
   webhook_endpoint {
-    url = "https://${azurerm_function_app.svc_app.default_hostname}/runtime/webhooks/EventGrid?functionName=OnAudioUploaded&code=${lookup(azurerm_template_deployment.svc_keys.outputs, "eventgridKey")}"
+    url = "https://${azurerm_function_app.svc_app.default_hostname}/runtime/webhooks/EventGrid?functionName=TranscribeAudio&code=${lookup(azurerm_template_deployment.svc_keys.outputs, "eventgridKey")}"
   }
 }
 
