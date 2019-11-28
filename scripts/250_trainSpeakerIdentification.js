@@ -33,12 +33,12 @@ const speakerIdentificationClient = got.extend({
 
 const mongoClient = new MongoClient(env.MONGODB_CONNECTION_STRING, { useUnifiedTopology: true })
 
-const storeSpeakerProfile = async (identificationProfileId, speakerName) => {
+const storeSpeakerProfile = async (profile, speakerName) => {
   const client = await mongoClient.connect()
   const collection = client.db(env.MONGODB_DATABASE).collection(env.MODELS_COLLECTION)
-  await collection.insertOne({ identificationProfileId, speakerName })
+  await collection.insertOne({ ...profile, speakerName })
   await client.close()
-  console.log(`Stored profile ${identificationProfileId} for speaker ${speakerName}.`)
+  console.log(`Stored profile ${profile.identificationProfileId} for speaker ${speakerName}.`)
 }
 
 const createIdentificationProfile = async speakerName => {
@@ -62,25 +62,29 @@ const enrollSpeaker = async (identificationProfileId, audioPath) => {
   )
   console.log(`Training profile ${identificationProfileId} on audio ${audioPath}.`)
 
+  let profile = null
+
   while (true) {
     const response = await speakerIdentificationClient.get(`/identificationProfiles/${identificationProfileId}`)
 
-    const { enrollmentStatus } = JSON.parse(response.body)
+    profile = JSON.parse(response.body)
 
-    if (enrollmentStatus === 'Enrolled') {
+    if (profile.enrollmentStatus === 'Enrolled') {
       break
     }
 
-    console.log(`Waiting for training of profile ${identificationProfileId}, status is ${enrollmentStatus}.`)
+    console.log(`Waiting for training of profile ${identificationProfileId}, status is ${profile.enrollmentStatus}.`)
     await sleepFor(1000)
   }
   console.log(`Profile ${identificationProfileId} is ready to be used.`)
+
+  return profile
 }
 
 const main = async (speakerName, audioPath) => {
   const identificationProfileId = await createIdentificationProfile(speakerName)
-  await storeSpeakerProfile(identificationProfileId, speakerName)
-  await enrollSpeaker(identificationProfileId, audioPath)
+  const profile = await enrollSpeaker(identificationProfileId, audioPath)
+  await storeSpeakerProfile(profile, speakerName)
 }
 
 main(process.argv[2], process.argv[3])
