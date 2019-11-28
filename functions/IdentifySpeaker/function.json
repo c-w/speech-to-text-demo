@@ -6,11 +6,11 @@
       "name": "eventGridEvent"
     },
     {
-      "type": "queue",
+      "type": "serviceBus",
       "direction": "out",
       "name": "outputQueueItem",
       "queueName": "identifyspeakerinprogress",
-      "connection": "AUDIO_STORAGE"
+      "connection": "SERVICEBUS_CONNECTION_STRING"
     }
   ]
 }

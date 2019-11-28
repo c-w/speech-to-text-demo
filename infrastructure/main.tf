@@ -176,6 +176,25 @@ resource "azurerm_app_service" "minio_app" {
   }
 }
 
+resource "azurerm_servicebus_namespace" "queues" {
+  resource_group_name = azurerm_resource_group.svc_resource_group.name
+  location            = azurerm_resource_group.svc_resource_group.location
+  name                = "${var.prefix}queues"
+  sku                 = var.servicebus_sku
+}
+
+resource "azurerm_servicebus_queue" "transcribeaudioinprogress" {
+  resource_group_name = azurerm_servicebus_namespace.queues.resource_group_name
+  namespace_name      = azurerm_servicebus_namespace.queues.name
+  name                = "transcribeaudioinprogress"
+}
+
+resource "azurerm_servicebus_queue" "identifyspeakerinprogress" {
+  resource_group_name = azurerm_servicebus_namespace.queues.resource_group_name
+  namespace_name      = azurerm_servicebus_namespace.queues.name
+  name                = "identifyspeakerinprogress"
+}
+
 resource "azurerm_app_service_plan" "svc_hosting" {
   resource_group_name          = azurerm_resource_group.svc_resource_group.name
   location                     = azurerm_resource_group.svc_resource_group.location
@@ -213,6 +232,7 @@ resource "azurerm_function_app" "svc_app" {
     HASH                           = filesha256(var.code_zip)
     WEBSITE_USE_ZIP                = "${azurerm_storage_blob.code_blob.url}${data.azurerm_storage_account_sas.code_blob_sas.sas}"
 
+    SERVICEBUS_CONNECTION_STRING = azurerm_servicebus_namespace.queues.default_primary_connection_string
     MONGODB_CONNECTION_STRING    = azurerm_cosmosdb_account.metadata_mongodb.connection_strings[0]
     MONGODB_DATABASE             = azurerm_cosmosdb_mongo_database.metadata_db.name
     TRANSCRIPTION_COLLECTION     = azurerm_cosmosdb_mongo_collection.transcription_collection.name

@@ -1,11 +1,11 @@
 {
   "bindings": [
     {
-      "type": "queueTrigger",
+      "type": "serviceBusTrigger",
       "direction": "in",
       "name": "queueItem",
       "queueName": "transcribeaudioinprogress",
-      "connection": "AUDIO_STORAGE"
+      "connection": "SERVICEBUS_CONNECTION_STRING"
     }
   ]
 }

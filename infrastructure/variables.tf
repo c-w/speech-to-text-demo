@@ -80,6 +80,11 @@ variable "code_blob_sas_expiry" {
   default = "48h"
 }
 
+variable "servicebus_sku" {
+  type    = string
+  default = "Standard"
+}
+
 variable "cognitive_services_sku_name" {
   type    = string
   default = "S0"

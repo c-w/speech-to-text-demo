@@ -30,6 +30,10 @@ output "minioEndpoint" {
   value = "https://${azurerm_app_service.minio_app.default_site_hostname}"
 }
 
+output "servicebusConnectionString" {
+  value = azurerm_servicebus_namespace.queues.default_primary_connection_string
+}
+
 output "audioContainerName" {
   value = var.audio_container_name
 }
