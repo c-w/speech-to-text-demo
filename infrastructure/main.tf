@@ -232,6 +232,7 @@ resource "azurerm_eventgrid_event_subscription" "transcribeaudio_sub" {
 
   subject_filter {
     subject_begins_with = "/blobServices/default/containers/${azurerm_storage_container.audio_container.name}/blobs/"
+    subject_ends_with   = ".wav"
   }
 
   webhook_endpoint {
@@ -246,6 +247,7 @@ resource "azurerm_eventgrid_event_subscription" "identifyspeaker_sub" {
 
   subject_filter {
     subject_begins_with = "/blobServices/default/containers/${azurerm_storage_container.audio_container.name}/blobs/"
+    subject_ends_with   = ".wav"
   }
 
   webhook_endpoint {
