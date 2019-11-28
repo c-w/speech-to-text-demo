@@ -43,7 +43,7 @@ output "crisAccessKey" {
 }
 
 output "crisEndpoint" {
-  value = "https://${var.location}.cris.ai"
+  value = "https://${var.location}.cris.ai/api/speechtotext/v2.0"
 }
 
 output "storageConnectionString" {

@@ -36,7 +36,7 @@ class Main {
     this.log = log
     this.storageCredential = credentialFromConnectionString(storageConnectionString)
     this.speechServiceClient = got.extend({
-      baseUrl: `${speechServiceEndpoint}/api/speechtotext/v2.0`,
+      baseUrl: speechServiceEndpoint,
       headers: { 'Ocp-Apim-Subscription-Key': speechServiceKey }
     })
   }

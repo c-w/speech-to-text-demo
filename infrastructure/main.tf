@@ -207,7 +207,7 @@ resource "azurerm_function_app" "svc_app" {
     MONGODB_DATABASE          = azurerm_cosmosdb_mongo_database.metadata_db.name
     TRANSCRIPTION_COLLECTION  = azurerm_cosmosdb_mongo_collection.transcription_collection.name
     SPEECH_SERVICE_KEY        = azurerm_cognitive_account.speech_to_text.primary_access_key
-    SPEECH_SERVICE_ENDPOINT   = "https://${azurerm_cognitive_account.speech_to_text.location}.cris.ai"
+    SPEECH_SERVICE_ENDPOINT   = "https://${azurerm_cognitive_account.speech_to_text.location}.cris.ai/api/speechtotext/v2.0"
     AUDIO_STORAGE             = azurerm_storage_account.data_storage_account.primary_connection_string
   }
 }
