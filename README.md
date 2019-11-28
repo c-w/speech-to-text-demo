@@ -18,8 +18,14 @@ This repository is a demo project that implements a workflow using [Azure Speech
 # connect to azure
 $ az login --use-device-code
 
+# deploy the system
+$ cd ./infrastructure
+$ node ../scripts/000_packageCode.js
+$ terraform apply -var subscription_id=<azure-subscription-id> -var prefix=<resource-prefix> -var code_zip=<path-to-code-package>
+$ node ../scripts/050_writeConfigFiles.js
+$ cd ..
+
 # create some test data
-$ node scripts/000_createInfrastructure.js <azure-subscription-id> <resource-prefix>
 $ node scripts/100_downloadSampleData.js
 $ node scripts/200_chunkSampleData.js
 

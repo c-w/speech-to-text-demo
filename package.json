@@ -16,7 +16,6 @@
     "hasbin": "^1.2.3",
     "mkdirp": "^0.5.1",
     "mongodb": "^3.3.5",
-    "semver": "^6.3.0",
     "sleep-promise": "^8.0.1",
     "sprintf-js": "^1.1.2",
     "temp": "^0.9.1",
