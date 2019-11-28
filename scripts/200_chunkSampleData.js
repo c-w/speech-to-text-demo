@@ -10,7 +10,6 @@ const sprintf = require('sprintf-js').sprintf
 const temp = require('temp').track()
 
 const exec = promisify(childProcess.exec)
-const readdir = promisify(fs.readdir)
 
 if (!hasbin.sync('ffmpeg')) {
   console.error('The ffmpeg utility is required for this script.')
@@ -40,16 +39,18 @@ const chunkAudio = async filePath => {
   if (fs.existsSync(sprintf(chunkPattern, 0))) {
     console.log(`Skipping ${filePath} since it has already been chunked.`)
   } else {
-    const wavFile = temp.path({ suffix: '.wav' })
-    const wavChunksDirectory = await temp.mkdir()
+    const ffmpegDirectory = await temp.mkdir()
+    const soxDirectory = await temp.mkdir()
+
+    const wavFile = path.join(ffmpegDirectory, `${fileBaseName}.wav`)
+    const wavChunkPattern = path.join(soxDirectory, `${fileBaseName}-%04d.raw.wav`)
 
     console.log(`Converting ${filePath} to wav pcm 16k 16bit mono ${chunkMinutes} minute chunks.`)
     await exec(`ffmpeg -i "${filePath}" -f wav "${wavFile}"`)
-    await exec(`ffmpeg -i "${wavFile}" -c copy -map 0 -segment_time "${chunkMinutes * 60}" -f segment "${path.join(wavChunksDirectory, `${fileBaseName}-%04d.raw.wav`)}"`)
+    await exec(`ffmpeg -i "${wavFile}" -c copy -map 0 -segment_time "${chunkMinutes * 60}" -f segment "${wavChunkPattern}"`)
 
-    const wavChunkPaths = await readdir(wavChunksDirectory)
-    for (const [i, wavChunk] of wavChunkPaths.entries()) {
-      const wavChunkPath = path.join(wavChunksDirectory, wavChunk)
+    for (const [i, wavChunk] of fs.readdirSync(soxDirectory).entries()) {
+      const wavChunkPath = path.join(soxDirectory, wavChunk)
       const outChunkPath = sprintf(chunkPattern, i)
       await exec(`sox "${wavChunkPath}" -r 16000 -b 16 -c 1 "${outChunkPath}"`)
     }

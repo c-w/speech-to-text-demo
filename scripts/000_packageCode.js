@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 const childProcess = require('child_process')
+const mkdirp = require('mkdirp')
 const path = require('path')
 const promisify = require('util').promisify
-const temp = require('temp').track()
 const zipper = require('zip-local')
 
 const exec = promisify(childProcess.exec)
@@ -17,14 +17,16 @@ async function withDir (directory, context) {
 }
 
 async function packageCode () {
-  const codeZipPath = temp.path({ suffix: '.zip' })
   const codeDirectory = path.join(__dirname, '..', 'functions')
+  const zipDirectory = path.join(__dirname, '..', 'data', 'code')
+  const zipPath = path.join(zipDirectory, `${new Date().getTime()}.zip`)
+  mkdirp.sync(zipDirectory)
 
   await withDir(codeDirectory, () => exec('npm install --only=prod'))
 
-  zipper.sync.zip(codeDirectory).compress().save(codeZipPath)
+  zipper.sync.zip(codeDirectory).compress().save(zipPath)
 
-  return codeZipPath
+  return zipPath
 }
 
 async function main () {
