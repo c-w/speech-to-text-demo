@@ -43,6 +43,16 @@ resource "azurerm_cosmosdb_mongo_collection" "transcription_collection" {
   throughput          = var.transcription_collection_throughput
 }
 
+resource "azurerm_cosmosdb_mongo_collection" "speaker_collection" {
+  resource_group_name = azurerm_cosmosdb_account.metadata_mongodb.resource_group_name
+  account_name        = azurerm_cosmosdb_account.metadata_mongodb.name
+  database_name       = azurerm_cosmosdb_mongo_database.metadata_db.name
+  name                = var.speaker_collection_name
+  default_ttl_seconds = -1
+  shard_key           = "createdDate"
+  throughput          = var.speaker_collection_throughput
+}
+
 resource "azurerm_cosmosdb_mongo_collection" "models_collection" {
   resource_group_name = azurerm_cosmosdb_account.metadata_mongodb.resource_group_name
   account_name        = azurerm_cosmosdb_account.metadata_mongodb.name
@@ -203,17 +213,20 @@ resource "azurerm_function_app" "svc_app" {
     HASH                           = filesha256(var.code_zip)
     WEBSITE_USE_ZIP                = "${azurerm_storage_blob.code_blob.url}${data.azurerm_storage_account_sas.code_blob_sas.sas}"
 
-    MONGODB_CONNECTION_STRING = azurerm_cosmosdb_account.metadata_mongodb.connection_strings[0]
-    MONGODB_DATABASE          = azurerm_cosmosdb_mongo_database.metadata_db.name
-    TRANSCRIPTION_COLLECTION  = azurerm_cosmosdb_mongo_collection.transcription_collection.name
-    SPEECH_SERVICE_KEY        = azurerm_cognitive_account.speech_to_text.primary_access_key
-    SPEECH_SERVICE_ENDPOINT   = "https://${azurerm_cognitive_account.speech_to_text.location}.cris.ai/api/speechtotext/v2.0"
-    AUDIO_STORAGE             = azurerm_storage_account.data_storage_account.primary_connection_string
+    MONGODB_CONNECTION_STRING    = azurerm_cosmosdb_account.metadata_mongodb.connection_strings[0]
+    MONGODB_DATABASE             = azurerm_cosmosdb_mongo_database.metadata_db.name
+    TRANSCRIPTION_COLLECTION     = azurerm_cosmosdb_mongo_collection.transcription_collection.name
+    SPEAKER_COLLECTION           = azurerm_cosmosdb_mongo_collection.speaker_collection.name
+    SPEAKER_RECOGNITION_KEY      = azurerm_cognitive_account.speaker_recognition.primary_access_key
+    SPEAKER_RECOGNITION_ENDPOINT = azurerm_cognitive_account.speaker_recognition.endpoint
+    SPEECH_SERVICE_KEY           = azurerm_cognitive_account.speech_to_text.primary_access_key
+    SPEECH_SERVICE_ENDPOINT      = "https://${azurerm_cognitive_account.speech_to_text.location}.cris.ai/api/speechtotext/v2.0"
+    AUDIO_STORAGE                = azurerm_storage_account.data_storage_account.primary_connection_string
   }
 }
 
-resource "azurerm_eventgrid_event_subscription" "svc_sub" {
-  name                 = "${var.prefix}sub"
+resource "azurerm_eventgrid_event_subscription" "transcribeaudio_sub" {
+  name                 = "${var.prefix}transcribeaudio"
   scope                = azurerm_storage_account.data_storage_account.id
   included_event_types = ["Microsoft.Storage.BlobCreated"]
 
@@ -223,6 +236,20 @@ resource "azurerm_eventgrid_event_subscription" "svc_sub" {
 
   webhook_endpoint {
     url = "https://${azurerm_function_app.svc_app.default_hostname}/runtime/webhooks/EventGrid?functionName=TranscribeAudio&code=${lookup(azurerm_template_deployment.svc_keys.outputs, "eventgridKey")}"
+  }
+}
+
+resource "azurerm_eventgrid_event_subscription" "identifyspeaker_sub" {
+  name                 = "${var.prefix}identifyspeaker"
+  scope                = azurerm_storage_account.data_storage_account.id
+  included_event_types = ["Microsoft.Storage.BlobCreated"]
+
+  subject_filter {
+    subject_begins_with = "/blobServices/default/containers/${azurerm_storage_container.audio_container.name}/blobs/"
+  }
+
+  webhook_endpoint {
+    url = "https://${azurerm_function_app.svc_app.default_hostname}/runtime/webhooks/EventGrid?functionName=IdentifySpeaker&code=${lookup(azurerm_template_deployment.svc_keys.outputs, "eventgridKey")}"
   }
 }
 

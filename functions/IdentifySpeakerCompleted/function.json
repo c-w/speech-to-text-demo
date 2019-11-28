@@ -1,0 +1,11 @@
+{
+  "bindings": [
+    {
+      "type": "queueTrigger",
+      "direction": "in",
+      "name": "queueItem",
+      "queueName": "identifyspeakerinprogress",
+      "connection": "AUDIO_STORAGE"
+    }
+  ]
+}

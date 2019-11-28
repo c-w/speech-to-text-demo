@@ -2,6 +2,7 @@ const MongoClient = require('mongodb').MongoClient
 const got = require('got')
 const moment = require('moment')
 const sleepFor = require('sleep-promise')
+const { POLLING_INTERVAL_SECONDS } = require('../common')
 
 /**
  * @typedef {import('../types').EventGridEvent} EventGridEvent
@@ -10,8 +11,6 @@ const sleepFor = require('sleep-promise')
  * @typedef {import('../types').Transcription} Transcription
  * @typedef {import('@azure/storage-blob').StorageSharedKeyCredential} StorageSharedKeyCredential
  */
-
-const POLLING_INTERVAL_SECONDS = 5
 
 class Main {
   /**

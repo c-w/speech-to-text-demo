@@ -1,27 +1,15 @@
 const azureStorage = require('@azure/storage-blob')
 const got = require('got')
+const { EVENTGRID_BLOB_CREATED, credentialFromConnectionString } = require('../common')
 
 /**
  * @typedef {import('../types').EventGridEvent} EventGridEvent
  * @typedef {import('../types').Logger} Logger
  * @typedef {import('../types').PendingTranscription} PendingTranscription
- * @typedef {import('@azure/storage-blob').StorageSharedKeyCredential} StorageSharedKeyCredential
  */
 
-const EVENTGRID_BLOB_CREATED = 'Microsoft.Storage.BlobCreated'
 const BLOB_SAS_EXIRY_HOURS = 48
 const BLOB_SAS_LOOKBACK_MINUTES = 5
-
-/**
- * @param {string} storageConnectionString
- * @returns {StorageSharedKeyCredential}
- */
-function credentialFromConnectionString (storageConnectionString) {
-  const parts = storageConnectionString.split(';').map(kv => kv.split('='))
-  const accountName = parts.filter(([key, _]) => key === 'AccountName')[0][1]
-  const accountKey = parts.filter(([key, _]) => key === 'AccountKey')[0][1]
-  return new azureStorage.StorageSharedKeyCredential(accountName, accountKey)
-}
 
 class Main {
   /**

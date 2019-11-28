@@ -6,7 +6,7 @@
 
 This repository is a demo project that implements a workflow using [Azure Speech To Text Batch Transcription](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/batch-transcription).
 
-![Architecture overview](https://user-images.githubusercontent.com/1086421/69766585-a3b2ac00-1146-11ea-994f-8c4b094c4b1d.png)
+![Architecture overview](https://user-images.githubusercontent.com/1086421/69778965-5f3e0500-1174-11ea-91ab-76bf58f94612.png)
 
 ## Setup
 

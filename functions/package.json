@@ -9,6 +9,7 @@
     "@azure/storage-blob": "^12.0.0",
     "envalid": "^6.0.0",
     "got": "^9.6.0",
+    "lodash.chunk": "^4.2.0",
     "moment": "^2.24.0",
     "mongodb": "^3.3.5",
     "sleep-promise": "^8.0.1"

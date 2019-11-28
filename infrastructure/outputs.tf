@@ -10,6 +10,10 @@ output "transcriptionCollection" {
   value = azurerm_cosmosdb_mongo_collection.transcription_collection.name
 }
 
+output "speakerCollection" {
+  value = azurerm_cosmosdb_mongo_collection.speaker_collection.name
+}
+
 output "modelsCollection" {
   value = azurerm_cosmosdb_mongo_collection.models_collection.name
 }

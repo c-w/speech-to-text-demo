@@ -24,3 +24,15 @@ export interface Transcription {
   resultsUrls: { [key: string]: string };
   name: string;
 }
+
+export interface PendingIdentification {
+  url: string;
+  recordingsUrl: string;
+}
+
+export interface Identification {
+  createdDateTime: string;
+  status: 'notstarted' | 'running' | 'failed' | 'succeeded';
+  confidence: 'Low' | 'Normal' | 'High';
+  identifiedProfileId: string;
+}

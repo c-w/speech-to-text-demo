@@ -5,8 +5,11 @@
     "MONGODB_CONNECTION_STRING": "${mongodbConnectionString}",
     "MONGODB_DATABASE": "${mongodbDatabase}",
     "TRANSCRIPTION_COLLECTION": "${transcriptionCollection}",
+    "SPEAKER_COLLECTION": "${speakerCollection}",
     "SPEECH_SERVICE_KEY": "${crisAccessKey}",
     "SPEECH_SERVICE_ENDPOINT": "${crisEndpoint}",
+    "SPEAKER_RECOGNITION_KEY": "${speakerRecognitionAccessKey}",
+    "SPEAKER_RECOGNITION_ENDPOINT": "${speakerRecognitionEndpoint}",
     "AUDIO_STORAGE": "${storageConnectionString}"
   }
 }
