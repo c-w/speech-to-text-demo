@@ -241,7 +241,7 @@ resource "azurerm_function_app" "svc_app" {
     SPEAKER_RECOGNITION_ENDPOINT = azurerm_cognitive_account.speaker_recognition.endpoint
     SPEECH_SERVICE_KEY           = azurerm_cognitive_account.speech_to_text.primary_access_key
     SPEECH_SERVICE_ENDPOINT      = "https://${azurerm_cognitive_account.speech_to_text.location}.cris.ai/api/speechtotext/v2.0"
-    AUDIO_STORAGE                = azurerm_storage_account.data_storage_account.primary_connection_string
+    STORAGE_CONNECTION_STRING    = azurerm_storage_account.data_storage_account.primary_connection_string
   }
 }
 
