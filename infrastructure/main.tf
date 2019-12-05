@@ -171,7 +171,7 @@ resource "azurerm_app_service" "minio_app" {
 
   site_config {
     always_on        = true
-    linux_fx_version = "DOCKER|cwolff/minio:latest"
+    linux_fx_version = "DOCKER|minio/minio:latest"
     app_command_line = "minio gateway azure ${azurerm_storage_account.data_storage_account.primary_blob_endpoint}"
   }
 }
